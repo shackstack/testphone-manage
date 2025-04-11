@@ -38,7 +38,7 @@ export default function RentalForm({
     try {
       // 현재 날짜를 YYYY-MM-DD 형식으로 설정
       const today = new Date();
-      const formattedDate = today.toISOString().split("T")[0];
+      const formattedDate = today.toISOString();
 
       const response = await fetch("/api/rentals", {
         method: "POST",

@@ -14,7 +14,7 @@ export async function POST(request: Request) {
 
     const rows = response.data.values || [];
     const rentalIndex = rows.findIndex(
-      (row) => row[1] === deviceId && row[3] === email
+      (row) => row[1] === deviceId && row[3] === email && !row[5]
     );
 
     if (rentalIndex === -1) {
@@ -35,10 +35,18 @@ export async function POST(request: Request) {
       },
     });
 
-    // 기기 상태 업데이트
+    const devicesResponse = await sheets.spreadsheets.values.get({
+      spreadsheetId: SPREADSHEET_ID,
+      range: `${SHEETS.DEVICES}!A2:H`,
+    });
+    const devicesRows = devicesResponse.data.values || [];
+    const devicesRentalIndex = devicesRows.findIndex(
+      (row) => row[0] === deviceId
+    );
+
     await sheets.spreadsheets.values.update({
       spreadsheetId: SPREADSHEET_ID,
-      range: `${SHEETS.DEVICES}!E${rentalIndex + 2}`,
+      range: `${SHEETS.DEVICES}!E${devicesRentalIndex + 2}`,
       valueInputOption: "USER_ENTERED",
       requestBody: {
         values: [["AVAILABLE"]],

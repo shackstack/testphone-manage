@@ -62,9 +62,26 @@ export async function POST(request: Request) {
     });
 
     // Update device status
+    const devicesResponse = await sheets.spreadsheets.values.get({
+      spreadsheetId: SPREADSHEET_ID,
+      range: `${SHEETS.DEVICES}!A:E`,
+    });
+
+    const deviceRows = devicesResponse.data.values || [];
+    const deviceRowIndex = deviceRows.findIndex(
+      (row) => row[0] === rental.device_id
+    );
+
+    if (deviceRowIndex === -1) {
+      throw new Error("Device not found");
+    }
+
+    // deviceRowIndex + 2 because:
+    // 1. deviceRowIndex is 0-based
+    // 2. We need to account for the header row
     await sheets.spreadsheets.values.update({
       spreadsheetId: SPREADSHEET_ID,
-      range: `${SHEETS.DEVICES}!E2`,
+      range: `${SHEETS.DEVICES}!E${deviceRowIndex + 1}`,
       valueInputOption: "USER_ENTERED",
       requestBody: {
         values: [["RENTED"]],
