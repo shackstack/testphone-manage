@@ -18,7 +18,6 @@ import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFnsV3";
 interface RentalFormData {
   borrower_name: string;
   borrower_email: string;
-  rental_start_date: Date;
   notes: string;
 }
 
@@ -31,13 +30,16 @@ export default function RentalForm({
   const [formData, setFormData] = useState<RentalFormData>({
     borrower_name: "",
     borrower_email: "",
-    rental_start_date: new Date(),
     notes: "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      // 현재 날짜를 YYYY-MM-DD 형식으로 설정
+      const today = new Date();
+      const formattedDate = today.toISOString().split("T")[0];
+
       const response = await fetch("/api/rentals", {
         method: "POST",
         headers: {
@@ -47,7 +49,7 @@ export default function RentalForm({
           device_id: params.deviceId,
           borrower_name: formData.borrower_name,
           borrower_email: formData.borrower_email,
-          rental_start_date: formData.rental_start_date,
+          rental_start_date: formattedDate,
           notes: formData.notes,
         }),
       });
@@ -93,20 +95,6 @@ export default function RentalForm({
                   }
                   required
                 />
-              </Box>
-              <Box>
-                <LocalizationProvider dateAdapter={AdapterDateFns}>
-                  <DatePicker
-                    label="대여 시작일"
-                    value={formData.rental_start_date}
-                    onChange={(date) =>
-                      setFormData({
-                        ...formData,
-                        rental_start_date: date || new Date(),
-                      })
-                    }
-                  />
-                </LocalizationProvider>
               </Box>
               <Box>
                 <TextField
