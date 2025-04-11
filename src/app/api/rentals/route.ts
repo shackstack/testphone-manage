@@ -21,9 +21,9 @@ export async function GET(request: Request) {
         borrower_name: row[2],
         borrower_email: row[3],
         rental_start_date: row[4],
-        rental_end_date: row[5],
+        return_date: row[5],
         purpose: row[6],
-        return_date: row[7] || undefined,
+        notes: row[7],
       }))
       .filter((rental) => !deviceId || rental.device_id === deviceId);
 
@@ -54,9 +54,8 @@ export async function POST(request: Request) {
             rental.borrower_name,
             rental.borrower_email,
             rental.rental_start_date,
-            rental.rental_end_date,
-            rental.purpose,
             rental.return_date || "",
+            rental.notes || "",
           ],
         ],
       },

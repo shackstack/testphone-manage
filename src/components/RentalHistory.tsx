@@ -24,7 +24,6 @@ export default function RentalHistory({ rentals }: RentalHistoryProps) {
             <TableCell>대여자</TableCell>
             <TableCell>이메일</TableCell>
             <TableCell>대여 시작일</TableCell>
-            <TableCell>대여 종료일</TableCell>
             <TableCell>반납일</TableCell>
             <TableCell>목적</TableCell>
           </TableRow>
@@ -38,14 +37,11 @@ export default function RentalHistory({ rentals }: RentalHistoryProps) {
                 {format(new Date(rental.rental_start_date), "yyyy-MM-dd")}
               </TableCell>
               <TableCell>
-                {format(new Date(rental.rental_end_date), "yyyy-MM-dd")}
-              </TableCell>
-              <TableCell>
                 {rental.return_date
                   ? format(new Date(rental.return_date), "yyyy-MM-dd")
                   : "-"}
               </TableCell>
-              <TableCell>{rental.purpose}</TableCell>
+              <TableCell>{rental?.purpose ?? "-"}</TableCell>
             </TableRow>
           ))}
         </TableBody>

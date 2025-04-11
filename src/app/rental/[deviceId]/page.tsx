@@ -19,8 +19,7 @@ interface RentalFormData {
   borrower_name: string;
   borrower_email: string;
   rental_start_date: Date;
-  rental_end_date: Date;
-  purpose: string;
+  notes: string;
 }
 
 export default function RentalForm({
@@ -33,8 +32,7 @@ export default function RentalForm({
     borrower_name: "",
     borrower_email: "",
     rental_start_date: new Date(),
-    rental_end_date: new Date(),
-    purpose: "",
+    notes: "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -46,9 +44,11 @@ export default function RentalForm({
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          ...formData,
           device_id: params.deviceId,
-          rental_id: crypto.randomUUID(),
+          borrower_name: formData.borrower_name,
+          borrower_email: formData.borrower_email,
+          rental_start_date: formData.rental_start_date,
+          notes: formData.notes,
         }),
       });
 
@@ -109,28 +109,14 @@ export default function RentalForm({
                 </LocalizationProvider>
               </Box>
               <Box>
-                <LocalizationProvider dateAdapter={AdapterDateFns}>
-                  <DatePicker
-                    label="대여 종료일"
-                    value={formData.rental_end_date}
-                    onChange={(date) =>
-                      setFormData({
-                        ...formData,
-                        rental_end_date: date || new Date(),
-                      })
-                    }
-                  />
-                </LocalizationProvider>
-              </Box>
-              <Box>
                 <TextField
                   fullWidth
                   label="대여 목적"
                   multiline
                   rows={4}
-                  value={formData.purpose}
+                  value={formData.notes}
                   onChange={(e) =>
-                    setFormData({ ...formData, purpose: e.target.value })
+                    setFormData({ ...formData, notes: e.target.value })
                   }
                   required
                 />

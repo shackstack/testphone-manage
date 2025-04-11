@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Device, Rental } from "@/types";
 import {
   Table,
@@ -17,6 +17,7 @@ import {
 } from "@mui/material";
 import RentalHistory from "./RentalHistory";
 import ReturnForm from "./ReturnForm";
+import { format } from "date-fns";
 
 interface DeviceListProps {
   devices: Device[];
@@ -37,6 +38,50 @@ export default function DeviceList({
   const [rentals, setRentals] = useState<Rental[]>([]);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isReturnOpen, setIsReturnOpen] = useState(false);
+  const [activeRentals, setActiveRentals] = useState<Record<string, Rental>>(
+    {}
+  );
+
+  useEffect(() => {
+    const fetchActiveRentals = async () => {
+      const rentalMap: Record<string, Rental> = {};
+
+      for (const device of devices) {
+        if (device.status === "RENTED") {
+          try {
+            const response = await fetch(
+              `/api/rentals?deviceId=${device.device_id}`
+            );
+            if (response.ok) {
+              const data: Rental[] = await response.json();
+              // 반납일이 없는 가장 최근 대여 이력을 찾습니다
+              const activeRental = data
+                .filter((rental) => !rental.return_date)
+                .sort(
+                  (a, b) =>
+                    new Date(b.rental_start_date).getTime() -
+                    new Date(a.rental_start_date).getTime()
+                )[0];
+
+              if (activeRental) {
+                rentalMap[device.device_id] = activeRental;
+              }
+            }
+          } catch (error) {
+            console.error(
+              "Error fetching rental for device:",
+              device.device_id,
+              error
+            );
+          }
+        }
+      }
+
+      setActiveRentals(rentalMap);
+    };
+
+    fetchActiveRentals();
+  }, [devices]);
 
   const handleDeviceClick = async (device: Device) => {
     setSelectedDevice(device);
@@ -73,59 +118,74 @@ export default function DeviceList({
               <TableCell>시리얼 번호</TableCell>
               <TableCell>OS 버전</TableCell>
               <TableCell>상태</TableCell>
-              <TableCell>구매일</TableCell>
-              <TableCell>마지막 점검일</TableCell>
+              <TableCell>대여자</TableCell>
+              <TableCell>대여 시작일</TableCell>
               <TableCell>작업</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {devices.map((device) => (
-              <TableRow key={device.device_id}>
-                <TableCell>{device.model_name}</TableCell>
-                <TableCell>{device.serial_number}</TableCell>
-                <TableCell>{device.os_version}</TableCell>
-                <TableCell>
-                  <Chip
-                    label={device.status}
-                    color={statusColors[device.status]}
-                    size="small"
-                  />
-                </TableCell>
-                <TableCell>{device.purchase_date}</TableCell>
-                <TableCell>{device.last_maintenance_date}</TableCell>
-                <TableCell>
-                  <Button
-                    variant="outlined"
-                    size="small"
-                    onClick={() => handleDeviceClick(device)}
-                  >
-                    대여 이력
-                  </Button>
-                  {device.status === "AVAILABLE" && (
-                    <Button
-                      variant="contained"
+            {devices.map((device) => {
+              const activeRental = activeRentals[device.device_id];
+              if (activeRental) {
+                console.log(activeRental);
+              }
+              return (
+                <TableRow key={device.device_id}>
+                  <TableCell>{device.model_name}</TableCell>
+                  <TableCell>{device.serial_number}</TableCell>
+                  <TableCell>{device.os_version}</TableCell>
+                  <TableCell>
+                    <Chip
+                      label={device.status}
+                      color={statusColors[device.status]}
                       size="small"
-                      color="primary"
-                      sx={{ ml: 1 }}
-                      href={`/rental/${device.device_id}`}
-                    >
-                      대여
-                    </Button>
-                  )}
-                  {device.status === "RENTED" && (
+                    />
+                  </TableCell>
+                  <TableCell>
+                    {activeRental ? activeRental.borrower_name : "-"}
+                  </TableCell>
+                  <TableCell>
+                    {activeRental
+                      ? format(
+                          new Date(activeRental.rental_start_date),
+                          "yyyy-MM-dd"
+                        )
+                      : "-"}
+                  </TableCell>
+                  <TableCell>
                     <Button
-                      variant="contained"
+                      variant="outlined"
                       size="small"
-                      color="secondary"
-                      sx={{ ml: 1 }}
-                      onClick={() => handleReturnClick(device)}
+                      onClick={() => handleDeviceClick(device)}
                     >
-                      반납
+                      대여 이력
                     </Button>
-                  )}
-                </TableCell>
-              </TableRow>
-            ))}
+                    {device.status === "AVAILABLE" && (
+                      <Button
+                        variant="contained"
+                        size="small"
+                        color="primary"
+                        sx={{ ml: 1 }}
+                        href={`/rental/${device.device_id}`}
+                      >
+                        대여
+                      </Button>
+                    )}
+                    {device.status === "RENTED" && (
+                      <Button
+                        variant="contained"
+                        size="small"
+                        color="secondary"
+                        sx={{ ml: 1 }}
+                        onClick={() => handleReturnClick(device)}
+                      >
+                        반납
+                      </Button>
+                    )}
+                  </TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </TableContainer>
