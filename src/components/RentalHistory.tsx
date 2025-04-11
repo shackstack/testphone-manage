@@ -22,7 +22,6 @@ export default function RentalHistory({ rentals }: RentalHistoryProps) {
         <TableHead>
           <TableRow>
             <TableCell>대여자</TableCell>
-            <TableCell>이메일</TableCell>
             <TableCell>대여 시작일</TableCell>
             <TableCell>반납일</TableCell>
             <TableCell>목적</TableCell>
@@ -32,7 +31,6 @@ export default function RentalHistory({ rentals }: RentalHistoryProps) {
           {rentals.map((rental) => (
             <TableRow key={rental.rental_id}>
               <TableCell>{rental.borrower_name}</TableCell>
-              <TableCell>{rental.borrower_email}</TableCell>
               <TableCell>
                 {format(new Date(rental.rental_start_date), "MM월 dd일 HH:mm")}
               </TableCell>

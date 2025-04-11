@@ -14,7 +14,7 @@ export async function POST(request: Request) {
 
     const rows = response.data.values || [];
     const rentalIndex = rows.findIndex(
-      (row) => row[1] === deviceId && row[3] === email && !row[7]
+      (row) => row[1] === deviceId && row[3] === email
     );
 
     if (rentalIndex === -1) {
@@ -25,13 +25,13 @@ export async function POST(request: Request) {
     }
 
     // 대여 이력 업데이트 (반납일 추가)
-    const returnDate = new Date().toISOString().split("T")[0];
+    const return_date = new Date().toISOString();
     await sheets.spreadsheets.values.update({
       spreadsheetId: SPREADSHEET_ID,
-      range: `${SHEETS.RENTALS}!H${rentalIndex + 2}`,
+      range: `${SHEETS.RENTALS}!F${rentalIndex + 2}`,
       valueInputOption: "USER_ENTERED",
       requestBody: {
-        values: [[returnDate]],
+        values: [[return_date]],
       },
     });
 
