@@ -196,7 +196,7 @@ export default function DeviceList({
         maxWidth="md"
         fullWidth
       >
-        <DialogTitle>{selectedDevice?.model_name} - 대여 이력</DialogTitle>
+        <DialogTitle>[{selectedDevice?.model_name}] 대여 이력</DialogTitle>
         <DialogContent>
           <RentalHistory rentals={rentals} />
         </DialogContent>

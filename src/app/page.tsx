@@ -27,7 +27,7 @@ export default function Home() {
   }, []);
 
   return (
-    <Container maxWidth="lg" component="main">
+    <Container maxWidth="lg" component="main" suppressHydrationWarning>
       <Box sx={{ my: 4 }}>
         <Typography variant="h4" component="h1" gutterBottom>
           테스트폰 관리 대장
