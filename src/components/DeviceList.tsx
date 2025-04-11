@@ -148,7 +148,7 @@ export default function DeviceList({
                     {activeRental
                       ? format(
                           new Date(activeRental.rental_start_date),
-                          "yyyy-MM-dd"
+                          "MM월 dd일 HH:mm"
                         )
                       : "-"}
                   </TableCell>

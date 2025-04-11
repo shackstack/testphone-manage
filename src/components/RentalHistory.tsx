@@ -34,11 +34,11 @@ export default function RentalHistory({ rentals }: RentalHistoryProps) {
               <TableCell>{rental.borrower_name}</TableCell>
               <TableCell>{rental.borrower_email}</TableCell>
               <TableCell>
-                {format(new Date(rental.rental_start_date), "yyyy-MM-dd")}
+                {format(new Date(rental.rental_start_date), "MM월 dd일 HH:mm")}
               </TableCell>
               <TableCell>
                 {rental.return_date
-                  ? format(new Date(rental.return_date), "yyyy-MM-dd")
+                  ? format(new Date(rental.return_date), "MM월 dd일 HH:mm")
                   : "-"}
               </TableCell>
               <TableCell>{rental?.purpose ?? "-"}</TableCell>
