@@ -16,9 +16,11 @@ import {
   DialogActions,
 } from "@mui/material";
 import RentalHistory from "./RentalHistory";
+import ReturnForm from "./ReturnForm";
 
 interface DeviceListProps {
   devices: Device[];
+  onDeviceUpdate: () => void;
 }
 
 const statusColors = {
@@ -27,10 +29,14 @@ const statusColors = {
   MAINTENANCE: "error",
 } as const;
 
-export default function DeviceList({ devices }: DeviceListProps) {
+export default function DeviceList({
+  devices,
+  onDeviceUpdate,
+}: DeviceListProps) {
   const [selectedDevice, setSelectedDevice] = useState<Device | null>(null);
   const [rentals, setRentals] = useState<Rental[]>([]);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [isReturnOpen, setIsReturnOpen] = useState(false);
 
   const handleDeviceClick = async (device: Device) => {
     setSelectedDevice(device);
@@ -45,6 +51,16 @@ export default function DeviceList({ devices }: DeviceListProps) {
     } catch (error) {
       console.error("Error fetching rentals:", error);
     }
+  };
+
+  const handleReturnClick = (device: Device) => {
+    setSelectedDevice(device);
+    setIsReturnOpen(true);
+  };
+
+  const handleReturnSuccess = () => {
+    setIsReturnOpen(false);
+    onDeviceUpdate();
   };
 
   return (
@@ -96,6 +112,17 @@ export default function DeviceList({ devices }: DeviceListProps) {
                       대여
                     </Button>
                   )}
+                  {device.status === "RENTED" && (
+                    <Button
+                      variant="contained"
+                      size="small"
+                      color="secondary"
+                      sx={{ ml: 1 }}
+                      onClick={() => handleReturnClick(device)}
+                    >
+                      반납
+                    </Button>
+                  )}
                 </TableCell>
               </TableRow>
             ))}
@@ -116,6 +143,22 @@ export default function DeviceList({ devices }: DeviceListProps) {
         <DialogActions>
           <Button onClick={() => setIsHistoryOpen(false)}>닫기</Button>
         </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={isReturnOpen}
+        onClose={() => setIsReturnOpen(false)}
+        maxWidth="sm"
+        fullWidth
+      >
+        <DialogContent>
+          {selectedDevice && (
+            <ReturnForm
+              deviceId={selectedDevice.device_id}
+              onSuccess={handleReturnSuccess}
+            />
+          )}
+        </DialogContent>
       </Dialog>
     </>
   );

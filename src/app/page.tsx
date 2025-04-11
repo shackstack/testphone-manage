@@ -9,20 +9,20 @@ export default function Home() {
   const [devices, setDevices] = useState<Device[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchDevices = async () => {
-      try {
-        const response = await fetch("/api/devices");
-        if (!response.ok) {
-          throw new Error("Failed to fetch devices");
-        }
-        const data = await response.json();
-        setDevices(data);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "An error occurred");
+  const fetchDevices = async () => {
+    try {
+      const response = await fetch("/api/devices");
+      if (!response.ok) {
+        throw new Error("Failed to fetch devices");
       }
-    };
+      const data = await response.json();
+      setDevices(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred");
+    }
+  };
 
+  useEffect(() => {
     fetchDevices();
   }, []);
 
@@ -35,7 +35,7 @@ export default function Home() {
         {error ? (
           <Typography color="error">{error}</Typography>
         ) : (
-          <DeviceList devices={devices} />
+          <DeviceList devices={devices} onDeviceUpdate={fetchDevices} />
         )}
       </Box>
     </Container>
